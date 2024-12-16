@@ -1,30 +1,28 @@
 import { DependencyContainer } from "tsyringe";
 
-import { IPostSptLoadMod } from "@spt/models/external/IPostSptLoadMod";
 import { ILogger } from "@spt/models/spt/utils/ILogger";
-import { ConfigServer } from "@spt/servers/ConfigServer";
-import { ConfigTypes } from "@spt/models/enums/ConfigTypes";
-import { ISeasonalEventConfig } from "@spt/models/spt/config/ISeasonalEventConfig";
+import { IPostDBLoadMod } from "@spt/models/external/IPostDBLoadMod";
+import { DatabaseServer } from "@spt/servers/DatabaseServer";
+import { IDatabaseTables } from "@spt/models/spt/server/IDatabaseTables";
 
-class Mod implements IPostSptLoadMod
-{
-    public postSptLoad(container: DependencyContainer): void
+class Mod implements IPostDBLoadMod
+{    
+    public postDBLoad(container: DependencyContainer): void
     {
-        // get logger
         const logger = container.resolve<ILogger>("WinstonLogger");
 
-        // get the config server so we can get a config with it
-        const configServer = container.resolve<ConfigServer>("ConfigServer");
+        // get database from the server
+        const databaseServer = container.resolve<DatabaseServer>("DatabaseServer");
 
-        // Request seasonal event config
-        const seasonConfig: ISeasonalEventConfig = configServer.getConfig<ISeasonalEventConfig>(ConfigTypes.SEASONAL_EVENT);
+        // get all the in-memory json foudn in /assets/database
+        const tables: IDatabaseTables = databaseServer.getTables();
 
-        // Disable the seasonal event detection
-        seasonConfig.enableSeasonalEventDetection = false;
-
-        // Log the new seasonal event setting
-        logger.info(`Seasonal event detection is now off.`);
+        // change flea market to only allow selling for FIR items
+        tables.globals.config.RagFair.isOnlyFoundInRaidAllowed = true;
+        
+        logger.log("[SCHKRM] Flea Market now only accepts FIR items", "yellow");
     }
 }
 
 export const mod = new Mod();
+
