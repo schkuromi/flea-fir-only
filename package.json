@@ -1,6 +1,6 @@
 {
-    "name": "basic-flea-options",
-    "version": "1.0.0",
+    "name": "flea-fir-only",
+    "version": "1.0.1",
     "sptVersion": "~3.10",
     "loadBefore": [],
     "loadAfter": [],
